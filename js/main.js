@@ -168,8 +168,8 @@ function createHoverReveal(e) {
 const mq = window.matchMedia("(min-width: 768px)");
 
 // add change listener to this breakpoint
-mq.addListener(handleWidthChange);
-// mq.addEventListener("change", handleWidthChange);
+// mq.addListener(handleWidthChange);
+mq.addEventListener("change", handleWidthChange);
 
 // first page load
 handleWidthChange(mq);
