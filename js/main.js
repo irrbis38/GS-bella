@@ -1,5 +1,7 @@
 gsap.registerPlugin(ScrollTrigger);
 
+let bodyScrollBar;
+
 function initNavigation() {
     const mainNavLinks = gsap.utils.toArray(".main-nav a");
     const mainNavLinksRev = mainNavLinks.reverse();
@@ -284,7 +286,7 @@ function initImageParallax() {
             scrollTrigger: {
                 trigger: section,
                 start: "top bottom",
-                scrub: 1,
+                scrub: true,
             },
         });
     });
@@ -339,16 +341,38 @@ function initScrollTo() {
 
         link.addEventListener("click", (e) => {
             e.preventDefault();
-            gsap.to(window, {
-                duration: 1.5,
-                scrollTo: target,
-                ease: "Power2.out",
+            bodyScrollBar.scrollIntoView(document.querySelector(target), {
+                damping: 0.07,
+                offsetTop: 100,
             });
         });
     });
 }
 
+function initSmoothScrollbar() {
+    bodyScrollBar = Scrollbar.init(document.querySelector("#viewport"), {
+        damping: 0.07,
+    });
+
+    // remove horizontal scrollbar
+    bodyScrollBar.track.xAxis.element.remove();
+
+    //keep ScrollTrigger in sync with Smooth Scrollbar
+    ScrollTrigger.scrollerProxy(document.body, {
+        scrollTop(value) {
+            if (arguments.length) {
+                bodyScrollBar.scrollTop = value; // setter
+            }
+            return bodyScrollBar.scrollTop; // getter
+        },
+    });
+
+    // when the smooth scroller updates, tell ScrollTrigger to update() too
+    bodyScrollBar.addListener(ScrollTrigger.update);
+}
+
 function init() {
+    initSmoothScrollbar();
     initNavigation();
     initHeaderTilt();
     handleWidthChange(mq);
@@ -360,32 +384,4 @@ function init() {
 
 window.addEventListener("load", function () {
     init();
-});
-
-// smooth scrolling
-
-let container = document.querySelector("#scroll-container");
-
-let height;
-
-function setHeight() {
-    height = container.clientHeight;
-    console.log(height);
-    document.body.style.height = `${height}px`;
-    console.log(document.body.clientHeight);
-}
-
-ScrollTrigger.addEventListener("refreshInit", setHeight);
-
-gsap.to(container, {
-    y: () => -(height - document.documentElement.clientHeight),
-    ease: "none",
-    scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1,
-        invalidateOnRefresh: true,
-        markers: true,
-    },
 });
