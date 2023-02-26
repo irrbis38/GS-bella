@@ -284,7 +284,7 @@ function initImageParallax() {
             scrollTrigger: {
                 trigger: section,
                 start: "top bottom",
-                scrub: true,
+                scrub: 1,
             },
         });
     });
@@ -297,6 +297,7 @@ function initPinSteps() {
         endTrigger: "#stage4",
         end: "center center",
         pin: true,
+        pinReparent: true,
         // markers: true,
     });
 
@@ -359,4 +360,32 @@ function init() {
 
 window.addEventListener("load", function () {
     init();
+});
+
+// smooth scrolling
+
+let container = document.querySelector("#scroll-container");
+
+let height;
+
+function setHeight() {
+    height = container.clientHeight;
+    console.log(height);
+    document.body.style.height = `${height}px`;
+    console.log(document.body.clientHeight);
+}
+
+ScrollTrigger.addEventListener("refreshInit", setHeight);
+
+gsap.to(container, {
+    y: () => -(height - document.documentElement.clientHeight),
+    ease: "none",
+    scrollTrigger: {
+        trigger: document.body,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1,
+        invalidateOnRefresh: true,
+        markers: true,
+    },
 });
